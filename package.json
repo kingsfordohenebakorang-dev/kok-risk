@@ -4,7 +4,7 @@
     "description": "Bank-Grade Risk & Insurance API",
     "main": "dist/server.js",
     "scripts": {
-        "start": "node dist/server.js",
+        "start": "npx prisma migrate deploy && node dist/server.js",
         "dev": "nodemon src/server.ts",
         "build": "tsc && mkdir -p dist/public && ncp public dist/public",
         "lint": "eslint src/**/*.ts",
@@ -36,11 +36,13 @@
     "devDependencies": {
         "@types/bcryptjs": "^2.4.6",
         "@types/cors": "^2.8.17",
+        "@types/dotenv": "^8.2.0",
         "@types/express": "^4.17.21",
         "@types/jsonwebtoken": "^9.0.5",
         "@types/morgan": "^1.9.9",
         "@types/node": "^20.10.6",
         "@types/pg": "^8.10.9",
+        "@types/winston": "^2.4.4",
         "nodemon": "^3.0.2",
         "prisma": "^5.7.0",
         "ts-node": "^10.9.2",
