@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Dashboard</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+
+        .bank-badge {
+            background: #166534;
+            color: #dcfce7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fintech-badge {
+            background: #7c2d12;
+            color: #ffedd5;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        h1,
+        h3 {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div id="orgInfo">Loading...</div>
+        <button class="btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="content">
+        <div class="card" id="mainPanel">
+            <h3>Welcome Back</h3>
+            <p>Select an action to proceed.</p>
+        </div>
+
+        <!-- BANK VIEW ONLY -->
+        <div id="bankControls" class="card" style="display:none; border-color: #22c55e;">
+            <h3>🏛️ Bank Controls</h3>
+            <p>Manage Underwriting Rules & View Aggregate Risk Reports.</p>
+            <button class="btn" style="background: #166534">View Compliance Logs (Audit Vault)</button>
+        </div>
+
+        <!-- FINTECH VIEW ONLY -->
+        <div id="fintechControls" class="card" style="display:none; border-color: #f97316;">
+            <h3>📱 Fintech Portal</h3>
+            <p>Submit Loan Applications & Monitor Default Rates.</p>
+            <button class="btn" style="background: #ea580c">New Loan Request</button>
+        </div>
+    </div>
+
+    <script>
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            window.location.href = '/login.html';
+        }
+
+        const user = JSON.parse(userStr);
+        const orgName = user.org ? user.org.name : 'Independent';
+        const orgType = user.org ? user.org.type : 'USER';
+
+        // Set Header
+        const badgeClass = orgType === 'BANK' ? 'bank-badge' : (orgType === 'FINTECH' ? 'fintech-badge' : '');
+        document.getElementById('orgInfo').innerHTML = `
+      <h1>${orgName} <span class="${badgeClass}">${orgType}</span></h1>
+    `;
+
+        // Show correct panels
+        if (orgType === 'BANK') {
+            document.getElementById('bankControls').style.display = 'block';
+        } else if (orgType === 'FINTECH') {
+            document.getElementById('fintechControls').style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+
+</html>

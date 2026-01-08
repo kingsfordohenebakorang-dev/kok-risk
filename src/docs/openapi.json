@@ -1,0 +1,170 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bank-Grade Risk & Insurance API",
+        "version": "1.0.0",
+        "description": "A multi-tenant API for Risk Assessment, Parametric Insurance, and Compliance."
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/v1",
+            "description": "Local Development Server"
+        },
+        {
+            "url": "https://api.your-fintech.com/v1",
+            "description": "Production Server"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "apiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-api-key"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "summary": "Register a new Account (Bank or Fintech)",
+                "security": [],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "organizationName": {
+                                        "type": "string"
+                                    },
+                                    "organizationType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "BANK",
+                                            "FINTECH"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Account created successfully"
+                    }
+                }
+            }
+        },
+        "/evaluate": {
+            "post": {
+                "summary": "Calculate Risk Score & Premium",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "borrower_id": {
+                                        "type": "string"
+                                    },
+                                    "loan_amount": {
+                                        "type": "number"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "enum": [
+                                            "GHS",
+                                            "NGN",
+                                            "USD"
+                                        ]
+                                    },
+                                    "tenor": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Risk Assessment Result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "approved": {
+                                            "type": "boolean"
+                                        },
+                                        "pricing": {
+                                            "type": "object",
+                                            "properties": {
+                                                "premium": {
+                                                    "type": "number"
+                                                },
+                                                "rate": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/repayment": {
+            "post": {
+                "summary": "Trigger Parametric Payout (Bank Webhook)",
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "borrower_id": {
+                                        "type": "string"
+                                    },
+                                    "days_past_due": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Trigger processed"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 0. User Management & Multi-Tenancy
+enum OrgType {
+  BANK     // Can view full risk reports, underwrite loans
+  FINTECH  // Can only submit loan requests and view thier own stats
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  type      OrgType
+  apiKey    String   @unique @default(uuid()) // Unique API Key for server-to-server
+  createdAt DateTime @default(now())
+  users     User[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed password
+  role      String   @default("USER") // ADMIN, USER, ACTUARY
+  
+  // Link to Organization
+  orgId     String?
+  org       Organization? @relation(fields: [orgId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+// 1. Audit Vault: Immutable log of all decisions for compliance
+model AuditLog {
+  id          String   @id @default(uuid())
+  timestamp   DateTime @default(now())
+  borrowerId  String
+  decisionId  String   @unique
+  
+  // Inputs stored as JSON to allow schema flexibility over time
+  inputs      Json
+  
+  // Outputs (Risk Score, Price, Decision)
+  outputs     Json
+  
+  // Metadata for tracing
+  modelVersion String
+  environment  String   @default("production")
+
+  @@index([borrowerId])
+  @@index([timestamp])
+}
+
+// 2. Model Registry: Dynamic rules configuration
+model ModelRegistry {
+  id             String   @id @default(uuid())
+  version        String   @unique
+  isActive       Boolean  @default(false)
+  isShadow       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  
+  // Configuration parameters for this model version
+  config         Json
+}
+
+// 3. Borrower Features: Persistent store for risk attributes
+model BorrowerFeatures {
+  borrowerId       String   @id
+  creditScore      Int
+  inflowVolatility Float
+  lastUpdated      DateTime @default(now())
+  
+  // Detailed transaction aggregations
+  metadata         Json?
+}

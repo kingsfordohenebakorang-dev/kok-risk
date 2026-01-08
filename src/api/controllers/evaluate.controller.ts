@@ -1,0 +1,29 @@
+import { Request, Response } from 'express';
+import { z } from 'zod';
+import { decisionEngine } from '../../core/decision-engine';
+import { logger } from '../../utils/logger';
+
+const evaluateSchema = z.object({
+    borrower_id: z.string(),
+    loan_amount: z.number().positive(),
+    tenor: z.number().int().positive(),
+});
+
+export const evaluateRisk = async (req: Request, res: Response) => {
+    try {
+        const validation = evaluateSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({ error: 'Validation Error', details: validation.error.format() });
+        }
+
+        const { borrower_id, loan_amount, tenor } = validation.data;
+
+        const result = await decisionEngine.evaluate(borrower_id, loan_amount, tenor);
+
+        return res.json(result);
+    } catch (error) {
+        logger.error('Evaluate Error:', error);
+        return res.status(500).json({ error: 'Evaluation Failed' });
+    }
+};
