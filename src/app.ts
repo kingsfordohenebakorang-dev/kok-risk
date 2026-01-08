@@ -7,6 +7,9 @@ import { logger } from './utils/logger';
 
 const app = express();
 
+// Trust Proxy (Required for Cloud/Render SSL)
+app.enable('trust proxy');
+
 // Security & Middleware
 app.use(helmet()); // Sets various HTTP headers for security
 app.use(cors());

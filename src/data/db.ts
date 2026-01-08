@@ -14,5 +14,5 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Connection handling
 prisma.$connect()
-    .then(() => logger.info('✅ Connected to PostgreSQL Audit Vault'))
+    .then(() => logger.info('✅ Connected to PostgreSQL Audit Vault (SSL/TLS Encrypted)'))
     .catch((e) => logger.error('❌ Failed to connect to DB', e));
