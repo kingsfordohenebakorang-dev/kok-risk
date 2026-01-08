@@ -4,10 +4,10 @@ services:
   api:
     build: .
     ports:
-      - "3000:3000"
+      - "10000:10000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=10000
       - DATABASE_URL=postgresql://user:password@postgres:5432/risk_db?schema=public
       - REDIS_URL=redis://redis:6379
       - API_KEY=test_secret_key
@@ -31,7 +31,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d risk_db"]
+      test: [ "CMD-SHELL", "pg_isready -U user -d risk_db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -50,6 +50,7 @@ services:
 volumes:
   pg_data:
   redis_data:
+
 
 networks:
   bank-net:

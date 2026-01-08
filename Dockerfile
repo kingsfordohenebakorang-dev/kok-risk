@@ -34,6 +34,6 @@ COPY --from=builder /app/node_modules ./node_modules
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-EXPOSE 3000
+EXPOSE 10000
 
 CMD ["npm", "start"]
