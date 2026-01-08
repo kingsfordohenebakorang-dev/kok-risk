@@ -44,6 +44,7 @@ export class DecisionEngine {
         const pricing = calculatePremium({
             expectedLoss: riskMetrics.el,
             loanAmount: amount,
+            currency: 'GHS',
         });
 
         // 4. Decision Logic (Thresholds)
@@ -93,11 +94,12 @@ export class DecisionEngine {
         const shadowPricing = calculatePremium({
             expectedLoss: shadowMetrics.el,
             loanAmount: amount,
+            currency: 'GHS',
         });
 
         logger.info('Shadow Mode Comparison', {
             model: ModelRegistry.shadowModelId,
-            originalPremium: calculatePremium({ expectedLoss: shadowMetrics.el, loanAmount: amount }).premium,
+            originalPremium: calculatePremium({ expectedLoss: shadowMetrics.el, loanAmount: amount, currency: 'GHS' }).premium,
             shadowPremium: shadowPricing.premium
         });
     }
