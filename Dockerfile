@@ -7,6 +7,9 @@ COPY package*.json ./
 COPY tsconfig.json ./
 COPY prisma ./prisma/
 
+# Install OpenSSL (Required for Prisma on Alpine)
+RUN apk add --no-cache openssl libc6-compat
+
 # Install dependencies including dev (for building)
 RUN npm install
 
