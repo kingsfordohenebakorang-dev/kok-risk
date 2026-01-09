@@ -12,17 +12,16 @@ export const getComplianceReport = async (req: Request, res: Response) => {
         // return res.status(403).json({ error: 'Access Denied: Compliance Reports are for Banks/Admins only' });
     }
 
-    const { regulator, start_date, end_date } = req.query;
-
-    if (!regulator || !start_date || !end_date) {
-        return res.status(400).json({ error: 'Missing parameters: regulator, start_date, end_date' });
-    }
+    const query = req.query as any;
+    const regulator = query.regulator || 'BOG';
+    const end_date = query.end_date ? new Date(query.end_date) : new Date();
+    const start_date = query.start_date ? new Date(query.start_date) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
 
     try {
         const report = await complianceService.generateReport(
-            regulator as any,
-            new Date(start_date as string),
-            new Date(end_date as string)
+            regulator,
+            start_date,
+            end_date
         );
 
         return res.json(report);
