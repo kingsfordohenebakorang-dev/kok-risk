@@ -86,14 +86,28 @@
         <div id="bankControls" class="card" style="display:none; border-color: #22c55e;">
             <h3>🏛️ Bank Controls</h3>
             <p>Manage Underwriting Rules & View Aggregate Risk Reports.</p>
-            <button class="btn" style="background: #166534">View Compliance Logs (Audit Vault)</button>
+            <button class="btn" style="background: #166534"
+                onclick="location.href='/v1/compliance/report?format=json'">View Compliance Logs (JSON)</button>
         </div>
 
         <!-- FINTECH VIEW ONLY -->
         <div id="fintechControls" class="card" style="display:none; border-color: #f97316;">
             <h3>📱 Fintech Portal</h3>
             <p>Submit Loan Applications & Monitor Default Rates.</p>
-            <button class="btn" style="background: #ea580c">New Loan Request</button>
+            <button class="btn" style="background: #ea580c" onclick="location.href='/request-loan.html'">New Loan
+                Request</button>
+        </div>
+
+        <!-- DEMO ZONE (Visible to All) -->
+        <div class="card" style="border-color: #6366f1;">
+            <h3>🚀 Unicorn Demo Zone</h3>
+            <p>Quick access to all portals for testing purposes.</p>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn" onclick="location.href='/request-loan.html'">📝 Loan Request Form</button>
+                <button class="btn" onclick="location.href='/risk-checkout.html'">🛒 Merchant Checkout (Insurance
+                    SDK)</button>
+                <button class="btn" onclick="location.href='/docs.html'">📚 API Documentation</button>
+            </div>
         </div>
     </div>
 
