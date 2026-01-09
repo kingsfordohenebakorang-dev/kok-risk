@@ -88,7 +88,10 @@ export const login = async (req: Request, res: Response) => {
 
         const { email, password } = validation.data;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: { org: true }
+        });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -106,7 +109,15 @@ export const login = async (req: Request, res: Response) => {
             { expiresIn: '8h' }
         );
 
-        return res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
+        return res.json({
+            token,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                org: user.org ? { name: user.org.name, type: user.org.type } : null
+            }
+        });
     } catch (error) {
         logger.error('Login error', error);
         return res.status(500).json({ error: 'Login failed' });
