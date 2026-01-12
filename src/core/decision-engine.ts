@@ -1,4 +1,5 @@
 import { featureStore } from '../data/feature-store';
+import { riskEngine } from './risk-engine/orchestrator';
 import { auditVault } from '../data/audit-vault';
 import { calculateExpectedLoss, RiskInput, RiskOutput } from './risk-models';
 import { ModelRegistry } from '../config/registry';
@@ -36,17 +37,31 @@ export class DecisionEngine {
             volatility = data.inflowVolatility;
         }
 
-        // 2. Run Risk Models
-        const riskInput: RiskInput = {
+        // 2. Run Risk Models (New Modular Engine)
+        const engineResult = await riskEngine.evaluate({
+            borrowerId,
+            amount,
+            tenor,
+            income: monthlyIncome || 0,
+            employmentType: employmentType || 'INFORMAL',
+            bureauScore: creditScore
+        });
+
+        // Compatibility object for Audit/Shadow
+        const riskInput: Partial<RiskInput> = {
             creditScore,
-            inflowVolatility: volatility,
             loanAmount: amount,
             tenor,
             monthlyIncome,
             employmentType
         };
 
-        const riskMetrics = calculateExpectedLoss(riskInput);
+        const riskMetrics = {
+            pd: engineResult.pd,
+            lgd: 0.45, // Fixed LGD for now
+            ead: amount,
+            el: engineResult.pd * 0.45 * amount
+        };
 
         // 3. Pricing
         const pricing = calculatePremium({
@@ -55,10 +70,13 @@ export class DecisionEngine {
             currency: 'GHS',
         });
 
-        // 4. Decision Logic (Thresholds)
-        const approved = riskMetrics.pd < 0.20; // Reject if PD > 20%
+        // 4. Decision Logic (Derived from Engine)
+        const approved = engineResult.approved;
         const reasonCodes = [];
-        if (!approved) reasonCodes.push('RC001: PROBABILITY_OF_DEFAULT_TOO_HIGH');
+        if (!approved) {
+            if (engineResult.score <= 50) reasonCodes.push('RC001: CREDIT_SCORE_TOO_LOW');
+            if (engineResult.breakdown.affordability.dti > 0.60) reasonCodes.push('RC002: DEBT_TO_INCOME_TOO_HIGH');
+        }
 
         // 5. Audit Log (Async)
         // We fire and forget the audit log to ensure low latency on the response
